@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:quotes/helperMethods/FavoriteHelper.dart';
+import 'package:provider/provider.dart';
+import 'package:quotes/helperMethods/favoriteHelper.dart';
 import 'package:quotes/helperMethods/DBHelper.dart';
+import 'package:quotes/helperMethods/quoteHelper.dart';
+import 'package:quotes/helperMethods/quotesData.dart';
+import 'package:quotes/model/quoteModel.dart';
 import 'package:quotes/view/widgets/customIcon.dart';
 
 import '../../colors.dart';
@@ -10,12 +14,15 @@ class QuoteContainer extends StatefulWidget {
   final String id;
   final String author;
   final String quote;
+  final bool ableToDelete;
 
   const QuoteContainer({
     Key key,
     this.id,
     this.author,
-    this.quote}) : super(key: key);
+    this.quote,
+    this.ableToDelete = true,
+  }) : super(key: key);
 
   @override
   _QuoteContainerState createState() => _QuoteContainerState();
@@ -24,7 +31,9 @@ class QuoteContainer extends StatefulWidget {
 class _QuoteContainerState extends State<QuoteContainer> {
 
   final FavoriteHelper favoriteHelper = FavoriteHelper();
+  final QuoteHelper quoteHelper = QuoteHelper();
   final DBHelper dbHelper = DBHelper();
+
 
   @override
   Widget build(BuildContext context) {
@@ -112,38 +121,49 @@ class _QuoteContainerState extends State<QuoteContainer> {
                   ),
                 ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
 
-                    FutureBuilder(
-                      future: favoriteHelper.addedToFavorite(id: widget.id),
-                      builder: (context, addedToFavorite){
-                        return IconButton(
+                FutureBuilder(
+                  future: favoriteHelper.addedToFavorite(id: widget.id),
+                  builder: (context, addedToFavorite){
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Visibility(
+                            visible: widget.ableToDelete,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.cancel_outlined,
+                                color: customGreen,
+                              ),
+                              onPressed: () async {
+                                quoteHelper.deleteFromQuotes(idFetched: widget.id, context: context);
+
+                                if(addedToFavorite.data == true){
+                                  favoriteHelper.deleteFromFavorite(idFetched: widget.id, context: context);
+                                }
+                              },
+                            )
+                        ),
+
+                        IconButton(
                           icon: Icon(
                             addedToFavorite.data == false ? Icons.favorite_border : Icons.favorite,
                             color: addedToFavorite.data == false ? customGreen : customGreen,
                           ),
                           onPressed: () async {
                             if(addedToFavorite.data == false){
-                              await dbHelper.insertFavorite(
-                                  idFetched: widget.id,
-                                  author: widget.author,
-                                  quote: widget.quote
-                              );
+                              favoriteHelper.addToFavorite(idFetched: widget.id, author: widget.author, quote: widget.quote);
                             }
                             else{
-                              await dbHelper.deleteFavorite(
-                                  idFetched: widget.id
-                              );
+                              favoriteHelper.deleteFromFavorite(idFetched: widget.id, context: context);
                             }
                             setState(() {});
                           },
-                        );
-                      },
-                    )
+                        ),
 
-                  ],
+                      ],
+                    );
+                  },
                 )
               ],
             )

@@ -60,6 +60,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   id: Provider.of<QuotesData>(context).favorite[(lengthOfListFavorite - 1) - index].id.toString(),
                   quote: Provider.of<QuotesData>(context).favorite[(lengthOfListFavorite - 1) - index].quote.toString(),
                   author: Provider.of<QuotesData>(context).favorite[(lengthOfListFavorite - 1) - index].author.toString(),
+                  ableToDelete: false,
                 ),
 
                 ((lengthOfListFavorite - 1) - index) == 0

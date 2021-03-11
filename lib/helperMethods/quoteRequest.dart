@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:quotes/helperMethods/quotesData.dart';
 import 'package:quotes/helperMethods/DBHelper.dart';
 import 'package:quotes/model/quoteModel.dart';
-
+import 'UIcontroller.dart';
 import 'fetchAPI.dart';
 
 class QuoteRequest{
@@ -11,7 +11,8 @@ class QuoteRequest{
   final APIRequestsHelper apiRequestsHelper = APIRequestsHelper();
   final DBHelper dbHelper = DBHelper();
 
-  getNewQuote(BuildContext context) async {
+  // numberOfRetry is variable to search limited times to find new quote.
+  getNewQuote({BuildContext context, int numberOfRetry = 15, Function startLoading, Function stopLoading}) async {
 
     Map<String,String> header = {
       'Content-type' : 'application/json',
@@ -22,7 +23,9 @@ class QuoteRequest{
     QuoteModel responseNewQuote = await apiRequestsHelper.get(
       url: "https://api.quotable.io/random?tags=inspirational",
       header: header,
-      printResults: false
+      printResults: false,
+      startLoading: startLoading,
+      stopLoading: stopLoading,
     );
 
     if(responseNewQuote != null){
@@ -43,11 +46,13 @@ class QuoteRequest{
 
       }
       else{
-        getNewQuote(context);
+        getNewQuote(
+          context: context,
+          numberOfRetry: numberOfRetry - 1,
+          startLoading: startLoading(),
+          stopLoading: stopLoading()
+        );
       }
-
-    }
-    else{
 
     }
 

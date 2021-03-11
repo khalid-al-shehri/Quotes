@@ -1,15 +1,14 @@
-
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quotes/colors.dart';
-import 'package:quotes/helperMethods/FavoriteHelper.dart';
+import 'package:quotes/helperMethods/favoriteHelper.dart';
 import 'package:quotes/helperMethods/UIcontroller.dart';
-import 'package:quotes/helperMethods/fetchAPI.dart';
 import 'package:quotes/helperMethods/quoteRequest.dart';
 import 'package:quotes/helperMethods/quotesData.dart';
 import 'package:quotes/helperMethods/DBHelper.dart';
 import 'package:quotes/model/quoteModel.dart';
+import 'package:quotes/view/widgets/loadIcon.dart';
 import 'package:quotes/view/widgets/quoteContainer.dart';
 
 class QuotesScreen extends StatefulWidget {
@@ -28,8 +27,21 @@ class _QuotesScreenState extends State<QuotesScreen> {
   final FavoriteHelper favoriteHelper = FavoriteHelper();
   bool loading = false;
 
-  checkOfSQFLite() async {
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
+  startLoading(){
+    setState(() {
+      loading = true;
+    });
+  }
+
+  stopLoading(){
+    setState(() {
+      loading = false;
+    });
+  }
+
+  checkOfSQFLite() async {
 
     // Read Local database to check if there are old quotes
     List quotesSaved = await dbHelper.getAllListQuotes();
@@ -59,7 +71,7 @@ class _QuotesScreenState extends State<QuotesScreen> {
       }
       else{
         List.generate(3, (index){
-          quoteRequest.getNewQuote(context);
+          quoteRequest.getNewQuote(context: context, startLoading: startLoading, stopLoading: stopLoading);
         });
       }
     }
@@ -73,7 +85,7 @@ class _QuotesScreenState extends State<QuotesScreen> {
       }
       else{
         List.generate(6, (index){
-          quoteRequest.getNewQuote(context);
+          quoteRequest.getNewQuote(context: context, startLoading: startLoading, stopLoading: stopLoading);
         });
       }
     }
@@ -86,7 +98,7 @@ class _QuotesScreenState extends State<QuotesScreen> {
     }
     else{
       List.generate(3, (index){
-        quoteRequest.getNewQuote(context);
+        quoteRequest.getNewQuote(context: context, startLoading: startLoading, stopLoading: stopLoading);
       });
     }
   }
@@ -118,7 +130,6 @@ class _QuotesScreenState extends State<QuotesScreen> {
                 child: ListView.builder(
                   itemCount: lengthOfListQuote,
                   itemBuilder: (context, index){
-
                     return Column(
                       children: [
 
@@ -139,7 +150,7 @@ class _QuotesScreenState extends State<QuotesScreen> {
                       ],
                     );
                   },
-                ),
+                )
               )
                   :
               RefreshIndicator(
@@ -202,6 +213,22 @@ class _QuotesScreenState extends State<QuotesScreen> {
             ),
           ),
 
+          IgnorePointer(
+            ignoring: !loading,
+            child: AnimatedOpacity(
+              duration: Duration(milliseconds: 500),
+              opacity: loading == true ? 1 : 0,
+              child: Container(
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height,
+                color: customGreen.withOpacity(0.30),
+                child: Center(
+                  child: LoadingIcon(),
+                ),
+              ),
+            ),
+          )
+          
         ],
       )
     );

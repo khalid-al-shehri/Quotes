@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Main Scaffold for quote screen.
 final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
 void showInSnackBar(String value) {

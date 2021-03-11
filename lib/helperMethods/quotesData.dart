@@ -22,6 +22,23 @@ class QuotesData extends ChangeNotifier{
     notifyListeners();
   }
 
+  void refreshQuote({List<QuoteModel> listQuote, QuoteModel newQuote}){
+
+    quote = List<QuoteModel>();
+
+    if(listQuote != null){
+      List.generate(listQuote.length, (index) {
+        quote.add(listQuote[index]);
+      });
+    }
+
+    if(newQuote != null){
+      quote.add(newQuote);
+    }
+
+    notifyListeners();
+  }
+
   void updateFavorite({List<QuoteModel> listFavorite, QuoteModel newFavorite}){
 
     favorite = List<QuoteModel>();

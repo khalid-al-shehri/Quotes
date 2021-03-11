@@ -97,12 +97,12 @@ class DBHelper {
         whereArgs: [id]);
   }
 
-  Future<void> deleteQuotes(int id) async {
+  Future<void> deleteQuotes({String idFetched}) async {
     Database db = await this.database;
     await db.delete(
         '$_tableNameQuotes',
-        where: "$columnId = ?",
-        whereArgs: [id]
+        where: "$columnIdFetched = ?",
+        whereArgs: [idFetched]
     );
   }
 
@@ -161,6 +161,8 @@ class DBHelper {
         where: "$columnIdFetched = ?",
         whereArgs: [idFetched]
     );
+
+
   }
 
   Future<bool> searchForFetchedIDFavorite(String text)async{
